@@ -1,0 +1,66 @@
+//https://www.cdnpkg.com/nipplejs
+var joystick=null;
+var dir=null;
+var old_dir=null;
+var a=document.getElementById('mws-explore-area');
+var b=document.getElementById("divKeys").cloneNode();
+b.id="joy_stick";
+b.className="mobile-show";
+b.style="padding-top: 5px; z-index: 2; position: relative; top: -175px;";
+a.appendChild(b);
+var joystick_data = {
+	zone: document.getElementById('joy_stick'),//joy_stick//divKeys
+	size:150,
+	mode: 'static',
+	position: {left: '20%', top: '50%'},
+	color: 'black',
+	fadeTime:0,
+};
+window.loadScript=async function(src) {
+    return new Promise(function (resolve, reject) {
+        var s;
+        s = document.createElement('script');
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+    });
+}
+await loadScript('https://unpkg.com/nipplejs@0.9.0/dist/nipplejs.js');
+
+
+
+function bindNipple() {
+  joystick.on('move',()=>{
+  	//old_dir="";
+  	//dir="";
+  	joystick.on('dir:up dir:down dir:left dir:right',function(evt, data) {
+  		dir=evt.type.slice(4);
+  		if(old_dir!=dir){
+  			console.log("change dir: "+old_dir+" to: "+dir);
+  			keyState[old_dir]=false;
+  			old_dir=dir;
+  		}
+  		keyState[dir]=true;
+  	});
+  });
+  joystick.on('rested', function(evt, data) {
+  	console.log("stop dir: "+dir);
+  	keyState[dir]=false;
+  });
+}
+function createJoystick() {
+  if(joystick){
+  	console.log("eliminado");
+  	joystick.destroy();
+  	joystick=null;
+  }else console.log("error");
+  joystick = nipplejs.create(joystick_data);
+  bindNipple();
+}
+if(document.getElementById("keyLeft"))document.getElementById("keyLeft").remove();
+if(document.getElementById("keyRight"))document.getElementById("keyRight").remove();
+if(document.getElementById("keyDown"))document.getElementById("keyDown").remove();
+if(document.getElementById("keyUp"))document.getElementById("keyUp").remove();
+
+createJoystick();
